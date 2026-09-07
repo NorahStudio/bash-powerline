@@ -16,9 +16,13 @@
 # Tunables:
 #   POWERLINE_MODE      patched | compatible | flat (default: patched)
 #   POWERLINE_SEP       override the compatible-mode segment separator
+#   POWERLINE_THEME     color preset: default | solarized | night
 #   POWERLINE_SHOW_USER non-empty to show the username segment
 #   POWERLINE_SHOW_HOST non-empty to show the hostname segment
 #   POWERLINE_GIT=0     disable the git segment
+#
+# Switch presets at runtime (applies immediately):
+#   powerline_theme <default|solarized|night>
 
 __powerline() {
     # NOTE: values used later by ps1/__segment after __powerline has returned
@@ -42,14 +46,41 @@ __powerline() {
     PL_ESCFG='\[\e[38;5;%dm\]'
     PL_ESCBG='\[\e[48;5;%dm\]'
 
-    # Theme (xterm 256-color codes)
-    PL_USER_FG=0  PL_USER_BG=153   # username    light blue
-    PL_HOST_FG=0  PL_HOST_BG=4     # hostname    dark blue
-    PL_CWD_FG=15  PL_CWD_BG=237    # cwd         white on dark grey
-    PL_GIT_FG=0   PL_GIT_BG=148    # git clean   green
-    PL_GITD_FG=0  PL_GITD_BG=210   # git dirty   black on bright red
-    PL_OK_FG=10   PL_OK_BG=2      # prompt ok   bright green (on grey tail)
-    PL_ERR_FG=9   PL_ERR_BG=1     # prompt err  bright red (on grey tail)
+    # Theme preset (xterm 256-color codes). Pick with POWERLINE_THEME at source
+    # time, or switch at runtime via the powerline_theme function.
+    POWERLINE_THEME=${POWERLINE_THEME:-default}
+    case "$POWERLINE_THEME" in
+        solarized)
+            # solarized dark, approximated with the xterm-256 palette
+            PL_USER_FG=15 PL_USER_BG=61    # violet
+            PL_HOST_FG=15 PL_HOST_BG=37    # cyan
+            PL_CWD_FG=15  PL_CWD_BG=240    # subtle grey
+            PL_GIT_FG=15  PL_GIT_BG=64     # solarized green
+            PL_GITD_FG=15 PL_GITD_BG=166   # solarized orange
+            PL_OK_FG=71                    # muted green
+            PL_ERR_FG=167                  # soft red/orange
+            ;;
+        night)
+            # cool blue-grey "night" scheme
+            PL_USER_FG=15 PL_USER_BG=24    # dark blue
+            PL_HOST_FG=15 PL_HOST_BG=239   # warm grey
+            PL_CWD_FG=15  PL_CWD_BG=237    # dark grey
+            PL_GIT_FG=15  PL_GIT_BG=28     # green
+            PL_GITD_FG=15 PL_GITD_BG=1     # red
+            PL_OK_FG=46                    # bright green
+            PL_ERR_FG=196                  # vivid red
+            ;;
+        default|*)
+            # default: light-blue user, dark cwd strip, green clean / red 210
+            PL_USER_FG=0  PL_USER_BG=153   # light blue
+            PL_HOST_FG=0  PL_HOST_BG=4     # dark blue
+            PL_CWD_FG=15  PL_CWD_BG=237    # white on dark grey
+            PL_GIT_FG=0   PL_GIT_BG=148    # green
+            PL_GITD_FG=0  PL_GITD_BG=210   # salmon-red
+            PL_OK_FG=10                    # bright green
+            PL_ERR_FG=9                    # bright red
+            ;;
+    esac
 
     # Default prompt symbol by OS, unless user overrides
     if [[ -z "$PS_SYMBOL" ]]; then
@@ -162,3 +193,25 @@ __powerline() {
 
 __powerline
 unset __powerline
+
+# Absolute path of this file, so powerline_theme can re-source it.
+POWERLINE_SELF=${BASH_SOURCE[0]}
+POWERLINE_SELF=${POWERLINE_SELF/#\~/$HOME}
+
+# Switch the color preset in the current shell and re-render PS1 right away.
+# Usage: powerline_theme <default|solarized|night>
+powerline_theme() {
+    local name=${1:-}
+    case "$name" in
+        default|solarized|night)
+            POWERLINE_THEME=$name
+            source "$POWERLINE_SELF"
+            ps1
+            ;;
+        *)
+            echo "powerline_theme: unknown preset '$name'; available:" \
+                 "default, solarized, night" >&2
+            return 1
+            ;;
+    esac
+}
