@@ -7,12 +7,16 @@
 # https://github.com/b-ryan/powerline-shell: colored background segments
 # joined by slanted separators.
 #
-# Requires a 256-color-capable terminal ($TERM=xterm-256color or similar).
-# For the slanted separator in "patched" mode you need a patched/powerline
-# font (see powerline-fonts). Otherwise use "compatible" (default) or "flat".
+# Requires a 256-color-capable terminal ($TERM=xterm-256color or similar)
+# and a patched/powerline font for the separator glyph (see powerline-fonts).
+# Patched fonts (e.g. "Fira Mono for Powerline") are already installed under
+# ~/.local/share/fonts; select one in your terminal emulator.
+# Use "compatible" if you can't use a patched font, or "flat" for no separator.
 #
 # Tunables:
-#   POWERLINE_MODE      patched | compatible | flat (default: compatible)
+#   POWERLINE_MODE      patched | compatible | flat (default: patched)
+#   POWERLINE_SEP       override the compatible-mode segment separator
+#   POWERLINE_ARROW     override the prompt arrow after PS_SYMBOL (default: ❯)
 #   POWERLINE_SHOW_USER non-empty to show the username segment
 #   POWERLINE_SHOW_HOST non-empty to show the hostname segment
 #   POWERLINE_GIT=0     disable the git segment
@@ -22,7 +26,10 @@ __powerline() {
     # must be global (no `local`).
 
     # Mode
-    POWERLINE_MODE=${POWERLINE_MODE:-compatible}
+    POWERLINE_MODE=${POWERLINE_MODE:-patched}
+
+    # Prompt arrow placed after PS_SYMBOL; override with POWERLINE_ARROW
+    PL_ARROW=${POWERLINE_ARROW:-$'\u276f'}   # ❯
 
     # Separators
     if [[ $POWERLINE_MODE == patched ]]; then
@@ -30,22 +37,23 @@ __powerline() {
     elif [[ $POWERLINE_MODE == flat ]]; then
         PL_SEP=' '
     else
-        PL_SEP=$'\u25b6'   # ▶
+        PL_SEP=${POWERLINE_SEP:-$'\u276f'}   # ❯ (override with POWERLINE_SEP)
     fi
 
     # ANSI templates. \[...\] keeps bash from counting them as printed text.
     PL_RESET='\[\e[0m\]'
+    PL_BG_DEFAULT='\[\e[49m\]'   # restore terminal's default (transparent) bg
     PL_ESCFG='\[\e[38;5;%dm\]'
     PL_ESCBG='\[\e[48;5;%dm\]'
 
     # Theme (xterm 256-color codes)
     PL_USER_FG=0  PL_USER_BG=153   # username    light blue
     PL_HOST_FG=0  PL_HOST_BG=4     # hostname    dark blue
-    PL_CWD_FG=0   PL_CWD_BG=237    # cwd         dark grey
+    PL_CWD_FG=15  PL_CWD_BG=237    # cwd         white on dark grey
     PL_GIT_FG=0   PL_GIT_BG=148    # git clean   green
     PL_GITD_FG=0  PL_GITD_BG=3     # git dirty   yellow
-    PL_OK_FG=0    PL_OK_BG=2       # prompt ok   green
-    PL_ERR_FG=15  PL_ERR_BG=1      # prompt err  red
+    PL_OK_FG=10   PL_OK_BG=2      # prompt ok   bright green (on default bg)
+    PL_ERR_FG=9   PL_ERR_BG=1     # prompt err  bright red (on default bg)
 
     # Default prompt symbol by OS, unless user overrides
     if [[ -z "$PS_SYMBOL" ]]; then
@@ -125,15 +133,20 @@ __powerline() {
             fi
         fi
 
-        # Final segment: the prompt symbol, colored by the previous exit
-        # status (success green / failure red). No trailing separator.
-        local symfg symbg
+        # Final segment: " $PS_SYMBOL$PL_ARROW " drawn in the previous exit
+        # status color (success green / failure red) on a TRANSPARENT
+        # (terminal-default) background. The leading separator still bridges
+        # from the previous segment but fades into the terminal background.
+        local symfg
         if [[ $prev_err -eq 0 ]]; then
-            symfg=$PL_OK_FG; symbg=$PL_OK_BG
+            symfg=$PL_OK_FG
         else
-            symfg=$PL_ERR_FG; symbg=$PL_ERR_BG
+            symfg=$PL_ERR_FG
         fi
-        __segment "$symfg" "$symbg" " $PS_SYMBOL "
+        if [[ -n "$PL_PREV_BG" ]]; then
+            PL_OUT+="$(__fg "$PL_PREV_BG")$PL_BG_DEFAULT$PL_SEP"
+        fi
+        PL_OUT+="$PL_RESET$(__fg "$symfg") $PS_SYMBOL$PL_ARROW "
 
         PS1="${PL_OUT}$PL_RESET"
     }
