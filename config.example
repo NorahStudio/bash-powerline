@@ -1,0 +1,45 @@
+# bash-powerline user configuration
+#
+# Copy this file into place and edit to taste:
+#   cp config.example ~/.config/bash-powerline/config
+# (or save it as ~/.bash-powerline.conf)
+#
+# The values below override whatever the active POWERLINE_THEME preset chose.
+# For a fully custom preset, use any POWERLINE_THEME name that is not a
+# built-in (default | solarized | night) and define your own colours here,
+# e.g:
+#   export POWERLINE_THEME=mytheme
+#   powerline_theme mytheme
+
+# ---- behaviour ----
+#POWERLINE_MODE=patched          # patched | compatible | flat
+#POWERLINE_SEP='❯'                # separator for POWERLINE_MODE=compatible
+#POWERLINE_SHOW_USER=1           # uncomment to show the username segment
+#POWERLINE_SHOW_HOST=1           # uncomment to show the hostname segment
+#POWERLINE_GIT=0                 # uncomment to disable the git segment
+
+# ---- colours (xterm 256-color codes, 0-255) ----
+# See https://jonasjacek.github.io/colors/ for the full palette.
+# Commented values match the "default" preset.
+
+# username segment
+PL_USER_FG=0
+PL_USER_BG=153
+
+# hostname segment
+PL_HOST_FG=0
+PL_HOST_BG=4
+
+# working directory (and the prompt tail strip)
+PL_CWD_FG=15
+PL_CWD_BG=237
+
+# git segment: clean vs dirty
+PL_GIT_FG=0
+PL_GIT_BG=148
+PL_GITD_FG=0
+PL_GITD_BG=210
+
+# prompt symbol, drawn on the grey tail after the last segment
+PL_OK_FG=10    # last command succeeded
+PL_ERR_FG=9    # last command failed

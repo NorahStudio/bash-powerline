@@ -21,12 +21,32 @@
 #   POWERLINE_SHOW_HOST non-empty to show the hostname segment
 #   POWERLINE_GIT=0     disable the git segment
 #
+# Configuration file: values there override the chosen preset.
+#   $POWERLINE_CONFIG                   explicit path
+#   ~/.config/bash-powerline/config
+#   ~/.bash-powerline.conf
+# A documented template lives at config.example next to this script.
+#
 # Switch presets at runtime (applies immediately):
-#   powerline_theme <default|solarized|night>
+#   powerline_theme <default|solarized|night|custom-name>
 
 __powerline() {
     # NOTE: values used later by ps1/__segment after __powerline has returned
     # must be global (no `local`).
+
+    # Load the user configuration (mode, segment toggles, colour overrides).
+    # It runs again after the theme preset below so its colours win.
+    __powerline_config() {
+        local file=${POWERLINE_CONFIG:-}
+        if [[ -z "$file" ]]; then
+            for file in "$HOME/.config/bash-powerline/config" "$HOME/.bash-powerline.conf"; do
+                [[ -f "$file" ]] && break
+                file=''
+            done
+        fi
+        [[ -n "$file" ]] && source "$file"
+    }
+    __powerline_config
 
     # Mode
     POWERLINE_MODE=${POWERLINE_MODE:-patched}
@@ -49,6 +69,11 @@ __powerline() {
     # Theme preset (xterm 256-color codes). Pick with POWERLINE_THEME at source
     # time, or switch at runtime via the powerline_theme function.
     POWERLINE_THEME=${POWERLINE_THEME:-default}
+
+    # Reset colour variables so values don't leak between theme/config switches.
+    unset PL_USER_FG PL_USER_BG PL_HOST_FG PL_HOST_BG PL_CWD_FG PL_CWD_BG \
+          PL_GIT_FG PL_GIT_BG PL_GITD_FG PL_GITD_BG PL_OK_FG PL_ERR_FG
+
     case "$POWERLINE_THEME" in
         solarized)
             # solarized dark, approximated with the xterm-256 palette
@@ -81,6 +106,9 @@ __powerline() {
             PL_ERR_FG=9                    # bright red
             ;;
     esac
+
+    # Re-apply the configuration so any PL_* values there win over the preset.
+    __powerline_config
 
     # Default prompt symbol by OS, unless user overrides
     if [[ -z "$PS_SYMBOL" ]]; then
@@ -199,19 +227,23 @@ POWERLINE_SELF=${BASH_SOURCE[0]}
 POWERLINE_SELF=${POWERLINE_SELF/#\~/$HOME}
 
 # Switch the color preset in the current shell and re-render PS1 right away.
-# Usage: powerline_theme <default|solarized|night>
+# Usage: powerline_theme <name>
+# Built-in presets: default, solarized, night. Any other name is treated as a
+# custom preset whose colours come from your configuration file.
 powerline_theme() {
     local name=${1:-}
+    if [[ -z "$name" ]]; then
+        echo "usage: powerline_theme <default|solarized|night|custom-name>" >&2
+        return 1
+    fi
     case "$name" in
-        default|solarized|night)
-            POWERLINE_THEME=$name
-            source "$POWERLINE_SELF"
-            ps1
-            ;;
+        default|solarized|night) ;;
         *)
-            echo "powerline_theme: unknown preset '$name'; available:" \
-                 "default, solarized, night" >&2
-            return 1
+            echo "powerline_theme: custom preset '$name' (colours come from" \
+                 "your configuration file)" >&2
             ;;
     esac
+    POWERLINE_THEME=$name
+    source "$POWERLINE_SELF"
+    ps1
 }
