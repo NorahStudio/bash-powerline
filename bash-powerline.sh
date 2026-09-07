@@ -16,7 +16,6 @@
 # Tunables:
 #   POWERLINE_MODE      patched | compatible | flat (default: patched)
 #   POWERLINE_SEP       override the compatible-mode segment separator
-#   POWERLINE_ARROW     override the prompt arrow after PS_SYMBOL (default: ❯)
 #   POWERLINE_SHOW_USER non-empty to show the username segment
 #   POWERLINE_SHOW_HOST non-empty to show the hostname segment
 #   POWERLINE_GIT=0     disable the git segment
@@ -27,9 +26,6 @@ __powerline() {
 
     # Mode
     POWERLINE_MODE=${POWERLINE_MODE:-patched}
-
-    # Prompt arrow placed after PS_SYMBOL; override with POWERLINE_ARROW
-    PL_ARROW=${POWERLINE_ARROW:-$'\u276f'}   # ❯
 
     # Separators
     if [[ $POWERLINE_MODE == patched ]]; then
@@ -52,8 +48,8 @@ __powerline() {
     PL_CWD_FG=15  PL_CWD_BG=237    # cwd         white on dark grey
     PL_GIT_FG=0   PL_GIT_BG=148    # git clean   green
     PL_GITD_FG=0  PL_GITD_BG=3     # git dirty   yellow
-    PL_OK_FG=10   PL_OK_BG=2      # prompt ok   bright green (on default bg)
-    PL_ERR_FG=9   PL_ERR_BG=1     # prompt err  bright red (on default bg)
+    PL_OK_FG=10   PL_OK_BG=2      # prompt ok   bright green (on grey tail)
+    PL_ERR_FG=9   PL_ERR_BG=1     # prompt err  bright red (on grey tail)
 
     # Default prompt symbol by OS, unless user overrides
     if [[ -z "$PS_SYMBOL" ]]; then
@@ -115,7 +111,7 @@ __powerline() {
             __segment $PL_HOST_FG $PL_HOST_BG "${HOSTNAME:-$(hostname)}"
         fi
 
-        __segment $PL_CWD_FG $PL_CWD_BG '\w'
+        __segment $PL_CWD_FG $PL_CWD_BG ' \w'
 
         # Git segment (if any): branch, with '*' when dirty.
         local git_info
@@ -133,20 +129,22 @@ __powerline() {
             fi
         fi
 
-        # Final segment: " $PS_SYMBOL$PL_ARROW " drawn in the previous exit
-        # status color (success green / failure red) on a TRANSPARENT
-        # (terminal-default) background. The leading separator still bridges
-        # from the previous segment but fades into the terminal background.
+        # Prompt tail: fades into the same grey as the cwd segment for a
+        # continuous strip. `\uE0B0` wedge from the previous segment onto the
+        # grey bg, `$` in the exit status color on grey, then a grey `\uE0B0`
+        # wedge fading to the terminal's (transparent) background.
         local symfg
         if [[ $prev_err -eq 0 ]]; then
             symfg=$PL_OK_FG
         else
             symfg=$PL_ERR_FG
         fi
+        local tailbg=$PL_CWD_BG
         if [[ -n "$PL_PREV_BG" ]]; then
-            PL_OUT+="$(__fg "$PL_PREV_BG")$PL_BG_DEFAULT$PL_SEP"
+            PL_OUT+="$(__fg "$PL_PREV_BG")$(__bg "$tailbg")$PL_SEP"
         fi
-        PL_OUT+="$PL_RESET$(__fg "$symfg") $PS_SYMBOL$PL_ARROW "
+        PL_OUT+="$(__bg "$tailbg")$(__fg "$symfg") $PS_SYMBOL"
+        PL_OUT+="$(__fg "$tailbg")$PL_BG_DEFAULT$PL_SEP "
 
         PS1="${PL_OUT}$PL_RESET"
     }
