@@ -153,7 +153,11 @@ __powerline() {
         PS1="${PL_OUT}$PL_RESET"
     }
 
-    PROMPT_COMMAND="ps1${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
+    # Add ps1 to PROMPT_COMMAND, without duplicating it across repeated
+    # sourcing of this file.
+    if [[ "; ${PROMPT_COMMAND:-} " != *"; ps1 "* ]]; then
+        PROMPT_COMMAND="ps1${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
+    fi
 }
 
 __powerline
