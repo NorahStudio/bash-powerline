@@ -132,7 +132,7 @@ __powerline() {
         # print just the branch ref; dirty state is shown by the segment color
         local ref=$($git_eng symbolic-ref --short HEAD 2>/dev/null)
         if [[ -n "$ref" ]]; then
-            ref=" $ref"
+            ref=" $ref "
         else
             ref=$($git_eng describe --tags --always 2>/dev/null)
         fi
@@ -173,7 +173,7 @@ __powerline() {
             __segment $PL_HOST_FG $PL_HOST_BG "${HOSTNAME:-$(hostname)}"
         fi
 
-        __segment $PL_CWD_FG $PL_CWD_BG ' \w'
+        __segment $PL_CWD_FG $PL_CWD_BG ' \w '
 
         # Git segment (if any): branch ref only; the background color shows
         # whether it's clean (green) or dirty (red).
@@ -206,7 +206,7 @@ __powerline() {
         if [[ -n "$PL_PREV_BG" ]]; then
             PL_OUT+="$(__fg "$PL_PREV_BG")$(__bg "$tailbg")$PL_SEP"
         fi
-        PL_OUT+="$(__bg "$tailbg")$(__fg "$symfg") $PS_SYMBOL"
+        PL_OUT+="$(__bg "$tailbg")$(__fg "$symfg") $PS_SYMBOL "
         PL_OUT+="$(__fg "$tailbg")$PL_BG_DEFAULT$PL_SEP "
 
         PS1="${PL_OUT}$PL_RESET"
