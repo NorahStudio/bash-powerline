@@ -47,7 +47,7 @@ __powerline() {
     PL_HOST_FG=0  PL_HOST_BG=4     # hostname    dark blue
     PL_CWD_FG=15  PL_CWD_BG=237    # cwd         white on dark grey
     PL_GIT_FG=0   PL_GIT_BG=148    # git clean   green
-    PL_GITD_FG=0  PL_GITD_BG=3     # git dirty   yellow
+    PL_GITD_FG=0  PL_GITD_BG=210   # git dirty   black on bright red
     PL_OK_FG=10   PL_OK_BG=2      # prompt ok   bright green (on grey tail)
     PL_ERR_FG=9   PL_ERR_BG=1     # prompt err  bright red (on grey tail)
 
@@ -70,6 +70,7 @@ __powerline() {
         hash git 2>/dev/null || return    # git not found
         local git_eng="env LANG=C git"    # force english git output
 
+        # print just the branch ref; dirty state is shown by the segment color
         local ref=$($git_eng symbolic-ref --short HEAD 2>/dev/null)
         if [[ -n "$ref" ]]; then
             ref=" $ref"
@@ -78,11 +79,13 @@ __powerline() {
         fi
         [[ -n "$ref" ]] || return   # not a git repo
 
-        local marks=''
-        if [[ $($git_eng status --porcelain --branch 2>/dev/null | wc -l) -gt 1 ]]; then
-            marks='*'
-        fi
-        printf "%s%s" "$ref" "$marks"
+        printf "%s" "$ref"
+    }
+
+    __git_dirty() {
+        local git_eng="env LANG=C git"
+        [[ $($git_eng status --porcelain --branch 2>/dev/null | wc -l) -gt 1 ]] \
+            && printf 1 || printf 0
     }
 
     # __segment <fg> <bg> <text>
@@ -113,7 +116,8 @@ __powerline() {
 
         __segment $PL_CWD_FG $PL_CWD_BG ' \w'
 
-        # Git segment (if any): branch, with '*' when dirty.
+        # Git segment (if any): branch ref only; the background color shows
+        # whether it's clean (green) or dirty (red).
         local git_info
         if shopt -q promptvars; then
             __powerline_git_info="$(__git_info)"
@@ -122,7 +126,7 @@ __powerline() {
             git_info=$(__git_info)
         fi
         if [[ -n "$git_info" ]]; then
-            if [[ "$git_info" == *'*' ]]; then
+            if [[ $(__git_dirty) == 1 ]]; then
                 __segment $PL_GITD_FG $PL_GITD_BG "$git_info"
             else
                 __segment $PL_GIT_FG $PL_GIT_BG "$git_info"
