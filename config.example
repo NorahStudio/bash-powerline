@@ -17,6 +17,9 @@
 #POWERLINE_SHOW_USER=1           # uncomment to show the username segment
 #POWERLINE_SHOW_HOST=1           # uncomment to show the hostname segment
 #POWERLINE_GIT=0                 # uncomment to disable the git segment
+#POWERLINE_SYMBOL_LINE=0         # uncomment to keep the prompt symbol on the
+#                                # same line as the last segment (default: the
+#                                # symbol starts a new line)
 
 # ---- colours (xterm 256-color codes, 0-255) ----
 # See https://jonasjacek.github.io/colors/ for the full palette.

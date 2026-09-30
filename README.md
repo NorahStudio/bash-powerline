@@ -8,6 +8,7 @@ A powerline-style prompt for Bash with coloured segments, git integration, and t
 - Git integration: branch name, clean/dirty shown by segment colour
 - Prompt symbol colour indicates last command success/failure
 - Grey tail strip (matching the cwd segment) for a polished look
+- Two-line prompt: segments on the first line, prompt symbol on the second
 - Three built-in presets: `default`, `solarized`, `night`
 - User configuration file to override any colour or setting
 - Safe to source repeatedly (idempotent)
@@ -86,6 +87,7 @@ The file is plain Bash. Any `PL_*` variable set there overrides the active prese
 | `POWERLINE_SHOW_USER` | Show the username segment | _(unset)_ |
 | `POWERLINE_SHOW_HOST` | Show the hostname segment | _(unset)_ |
 | `POWERLINE_GIT` | Set to `0` to disable git segment | _(unset)_ |
+| `POWERLINE_SYMBOL_LINE` | Set to `0` to keep the prompt symbol on the same line as the last segment | `1` (symbol on its own line) |
 | `PS_SYMBOL` | Prompt symbol (e.g. `$`) | `$` on Linux, `%` otherwise |
 
 ### Colour variables

@@ -20,6 +20,8 @@
 #   POWERLINE_SHOW_USER non-empty to show the username segment
 #   POWERLINE_SHOW_HOST non-empty to show the hostname segment
 #   POWERLINE_GIT=0     disable the git segment
+#   POWERLINE_SYMBOL_LINE=0 keep the prompt symbol on the same line as the
+#                        last segment (by default it starts a new line)
 #
 # Configuration file: values there override the chosen preset.
 #   $POWERLINE_CONFIG                   explicit path
@@ -51,6 +53,10 @@ __powerline() {
     # Mode
     POWERLINE_MODE=${POWERLINE_MODE:-patched}
 
+    # Prompt symbol on its own line (1, the default) or appended to the last
+    # segment on the same line (0).
+    POWERLINE_SYMBOL_LINE=${POWERLINE_SYMBOL_LINE:-1}
+
     # Separators
     if [[ $POWERLINE_MODE == patched ]]; then
         PL_SEP=$'\ue0b0'
@@ -63,6 +69,7 @@ __powerline() {
     # ANSI templates. \[...\] keeps bash from counting them as printed text.
     PL_RESET='\[\e[0m\]'
     PL_BG_DEFAULT='\[\e[49m\]'   # restore terminal's default (transparent) bg
+    PL_NL='\[\n\]'               # line break, zero-width for readline
     PL_ESCFG='\[\e[38;5;%dm\]'
     PL_ESCBG='\[\e[48;5;%dm\]'
 
@@ -192,10 +199,13 @@ __powerline() {
             fi
         fi
 
-        # Prompt tail: fades into the same grey as the cwd segment for a
-        # continuous strip. `\uE0B0` wedge from the previous segment onto the
-        # grey bg, `$` in the exit status color on grey, then a grey `\uE0B0`
-        # wedge fading to the terminal's (transparent) background.
+        # Prompt tail: a strip in the same grey as the cwd segment holding the
+        # prompt symbol, so it reads as a continuation of the segments. Starts
+        # on its own line unless POWERLINE_SYMBOL_LINE=0: the first line then
+        # ends with a `\uE0B0` wedge fading from the last segment's colour to
+        # the terminal's (transparent) background, and the second line opens
+        # with a flat grey edge holding `$` in the exit status colour, closed
+        # by another grey `\uE0B0` wedge back to that background.
         local symfg
         if [[ $prev_err -eq 0 ]]; then
             symfg=$PL_OK_FG
@@ -203,7 +213,10 @@ __powerline() {
             symfg=$PL_ERR_FG
         fi
         local tailbg=$PL_CWD_BG
-        if [[ -n "$PL_PREV_BG" ]]; then
+        if [[ $POWERLINE_SYMBOL_LINE != 0 ]]; then
+            [[ -n "$PL_PREV_BG" ]] && PL_OUT+="$(__fg "$PL_PREV_BG")$PL_BG_DEFAULT$PL_SEP"
+            PL_OUT+=$PL_NL
+        elif [[ -n "$PL_PREV_BG" ]]; then
             PL_OUT+="$(__fg "$PL_PREV_BG")$(__bg "$tailbg")$PL_SEP"
         fi
         PL_OUT+="$(__bg "$tailbg")$(__fg "$symfg") $PS_SYMBOL "
