@@ -69,7 +69,11 @@ __powerline() {
     # ANSI templates. \[...\] keeps bash from counting them as printed text.
     PL_RESET='\[\e[0m\]'
     PL_BG_DEFAULT='\[\e[49m\]'   # restore terminal's default (transparent) bg
-    PL_NL='\[\n\]'               # line break, zero-width for readline
+    # Line break for the two-line prompt. Deliberately not wrapped in \[ \]:
+    # readline measures only the last line of the prompt and strips marker pairs
+    # within it, so a \] landing after the newline is unpaired and counted as an
+    # extra column -- enough to make readline wrap one character too early.
+    PL_NL='\n'
     PL_ESCFG='\[\e[38;5;%dm\]'
     PL_ESCBG='\[\e[48;5;%dm\]'
 
