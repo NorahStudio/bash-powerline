@@ -20,6 +20,8 @@
 #POWERLINE_SYMBOL_LINE=0         # uncomment to keep the prompt symbol on the
 #                                # same line as the last segment (default: the
 #                                # symbol starts a new line)
+#PS_SYMBOL='$'                   # prompt symbol (default: $ on Linux/macOS)
+#PS_SYMBOL=$'\xef\x85\xb9'       # macOS Apple logo, needs a Nerd Font
 
 # ---- colours (xterm 256-color codes, 0-255) ----
 # See https://jonasjacek.github.io/colors/ for the full palette.

@@ -15,6 +15,8 @@ A powerline-style prompt for Bash with coloured segments, git integration, and t
 
 ## Requirements
 
+- Bash 3.2 or newer (works with the stock macOS `/bin/bash` and with the
+  newer bash packaged on Linux distributions)
 - A 256-colour-capable terminal (`$TERM=xterm-256color` or similar)
 - A [patched/powerline font](https://github.com/powerline/fonts) for the slanted `\uE0B0` separator
   (e.g. *Fira Mono for Powerline* or *Meslo LG M for Powerline*)
@@ -88,7 +90,7 @@ The file is plain Bash. Any `PL_*` variable set there overrides the active prese
 | `POWERLINE_SHOW_HOST` | Show the hostname segment | _(unset)_ |
 | `POWERLINE_GIT` | Set to `0` to disable git segment | _(unset)_ |
 | `POWERLINE_SYMBOL_LINE` | Set to `0` to keep the prompt symbol on the same line as the last segment | `1` (symbol on its own line) |
-| `PS_SYMBOL` | Prompt symbol (e.g. `$`) | `$` on Linux, `%` otherwise |
+| `PS_SYMBOL` | Prompt symbol (e.g. `$`) | `$` on Linux and macOS, `%` otherwise |
 
 ### Colour variables
 

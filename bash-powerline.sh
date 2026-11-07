@@ -57,13 +57,18 @@ __powerline() {
     # segment on the same line (0).
     POWERLINE_SYMBOL_LINE=${POWERLINE_SYMBOL_LINE:-1}
 
-    # Separators
+    # Separators.
+    # These glyphs are written as UTF-8 byte escapes rather than $'\uXXXX':
+    # macOS ships bash 3.2, which does not understand \u in ANSI-C quotes and
+    # leaves the text "\ue0b0" in PS1. Prompt expansion then treats the \u as
+    # the *username* escape, producing output like "seanleee0b0".
     if [[ $POWERLINE_MODE == patched ]]; then
-        PL_SEP=$'\ue0b0'
+        PL_SEP=$'\xee\x82\xb0'                    #  (U+E0B0)
     elif [[ $POWERLINE_MODE == flat ]]; then
         PL_SEP=' '
     else
-        PL_SEP=${POWERLINE_SEP:-$'\u276f'}   # ❯ (override with POWERLINE_SEP)
+        # ❯ (U+276F), override with POWERLINE_SEP
+        PL_SEP=${POWERLINE_SEP:-$'\xe2\x9d\xaf'}
     fi
 
     # ANSI templates. \[...\] keeps bash from counting them as printed text.
@@ -121,12 +126,14 @@ __powerline() {
     # Re-apply the configuration so any PL_* values there win over the preset.
     __powerline_config
 
-    # Default prompt symbol by OS, unless user overrides
-    if [[ -z "$PS_SYMBOL" ]]; then
+    # Default prompt symbol by OS, unless user overrides.
+    # Use "$" on macOS too: the Apple logo (U+F179) is a Font Awesome glyph
+    # that many Powerline fonts do not include, so it can render as a blank.
+    # Users with a Nerd Font can opt in with PS_SYMBOL=$'\xef\x85\xb9'.
+    if [[ -z "${PS_SYMBOL:-}" ]]; then
         case "$(uname)" in
-            Darwin) PS_SYMBOL=$'\uf179';;   #  Apple logo (patched font only)
-            Linux)  PS_SYMBOL='$';;
-            *)      PS_SYMBOL='%';;
+            Darwin|Linux) PS_SYMBOL='$';;
+            *)            PS_SYMBOL='%';;
         esac
     fi
 
@@ -136,7 +143,7 @@ __powerline() {
     __bg()   { printf "${PL_ESCBG/\%d/$1}"; }
 
     __git_info() {
-        [[ $POWERLINE_GIT = 0 ]] && return # disabled
+        [[ ${POWERLINE_GIT:-} = 0 ]] && return # disabled
         hash git 2>/dev/null || return    # git not found
         local git_eng="env LANG=C git"    # force english git output
 
@@ -177,10 +184,10 @@ __powerline() {
         PL_OUT=''
         PL_PREV_BG=''
 
-        if [[ -n "$POWERLINE_SHOW_USER" ]]; then
+        if [[ -n "${POWERLINE_SHOW_USER:-}" ]]; then
             __segment $PL_USER_FG $PL_USER_BG "${USER:-$(id -un)}"
         fi
-        if [[ -n "$POWERLINE_SHOW_HOST" ]]; then
+        if [[ -n "${POWERLINE_SHOW_HOST:-}" ]]; then
             __segment $PL_HOST_FG $PL_HOST_BG "${HOSTNAME:-$(hostname)}"
         fi
 
