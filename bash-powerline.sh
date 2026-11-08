@@ -190,10 +190,10 @@ __powerline() {
         PL_OUT=''
         PL_PREV_BG=''
 
-        if [[ -n "${POWERLINE_SHOW_USER:-}" ]]; then
+        if [[ "${POWERLINE_SHOW_USER:-}" != 0 ]]; then
             __segment $PL_USER_FG $PL_USER_BG "${USER:-$(id -un)}"
         fi
-        if [[ -n "${POWERLINE_SHOW_HOST:-}" ]]; then
+        if [[ "${POWERLINE_SHOW_HOST:-}" != 0 ]]; then
             __segment $PL_HOST_FG $PL_HOST_BG "${HOSTNAME:-$(hostname)}"
         fi
 
