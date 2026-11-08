@@ -26,7 +26,7 @@ A powerline-style prompt for Bash with coloured segments, git integration, and t
 ## Installation
 
 ```bash
-git clone <this-repo> ~/Projects/tools/bash-powerline
+git clone https://github.com/riobard/bash-powerline.git ~/Projects/tools/bash-powerline
 ```
 
 Then add to `~/.bashrc`:
