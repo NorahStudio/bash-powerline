@@ -17,8 +17,8 @@
 #   POWERLINE_MODE      patched | compatible | flat (default: patched)
 #   POWERLINE_SEP       override the compatible-mode segment separator
 #   POWERLINE_THEME     color preset: default | solarized | night
-#   POWERLINE_SHOW_USER non-empty to show the username segment
-#   POWERLINE_SHOW_HOST non-empty to show the hostname segment
+#   POWERLINE_SHOW_USER=1 enable the username segment (disabled by default)
+#   POWERLINE_SHOW_HOST=1 enable the hostname segment (disabled by default)
 #   POWERLINE_GIT=0     disable the git segment
 #   POWERLINE_SYMBOL_LINE=0 keep the prompt symbol on the same line as the
 #                        last segment (by default it starts a new line)
@@ -191,10 +191,10 @@ __powerline() {
         PL_OUT=''
         PL_PREV_BG=''
 
-        if [[ "${POWERLINE_SHOW_USER:-}" != 0 ]]; then
+        if [[ "${POWERLINE_SHOW_USER:-0}" != 0 ]]; then
             __segment $PL_USER_FG $PL_USER_BG "${USER:-$(id -un)}"
         fi
-        if [[ "${POWERLINE_SHOW_HOST:-}" != 0 ]]; then
+        if [[ "${POWERLINE_SHOW_HOST:-0}" != 0 ]]; then
             __segment $PL_HOST_FG $PL_HOST_BG "${HOSTNAME:-$(hostname)}"
         fi
 
@@ -245,7 +245,7 @@ __powerline() {
 
     # Add ps1 to PROMPT_COMMAND, without duplicating it across repeated
     # sourcing of this file.
-    if [[ " ${PROMPT_COMMAND:-} " =~ (^|[[:space:]])\"ps1\" ]]; then
+    if [[ ! " ${PROMPT_COMMAND:-} " =~ (^|[[:space:]])ps1 ]]; then
         PROMPT_COMMAND="ps1${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
     fi
 }
