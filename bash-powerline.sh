@@ -244,7 +244,7 @@ __powerline() {
 
     # Add ps1 to PROMPT_COMMAND, without duplicating it across repeated
     # sourcing of this file.
-    if [[ "; ${PROMPT_COMMAND:-} " != *"; ps1 "* ]]; then
+    if [[ " ${PROMPT_COMMAND:-} " =~ (^|[[:space:]])\"ps1\" ]]; then
         PROMPT_COMMAND="ps1${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
     fi
 }
