@@ -46,7 +46,7 @@ __powerline() {
                 file=''
             done
         fi
-        [[ -n "$file" ]] && source "$file"
+        [[ -n "$file" ]] && [[ -f "$file" ]] && source "$file"
     }
     __powerline_config
 
@@ -123,7 +123,7 @@ __powerline() {
             ;;
     esac
 
-    # Re-apply the configuration so any PL_* values there win over the preset.
+    # Apply the configuration so any PL_* values there win over the preset.
     __powerline_config
 
     # Default prompt symbol by OS, unless user overrides.
