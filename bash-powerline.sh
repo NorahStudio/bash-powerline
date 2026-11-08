@@ -153,6 +153,7 @@ __powerline() {
             ref=" $ref "
         else
             ref=$($git_eng describe --tags --always 2>/dev/null)
+            [[ -n "$ref" ]] && ref=" $ref "
         fi
         [[ -n "$ref" ]] || return   # not a git repo
 
