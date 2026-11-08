@@ -156,6 +156,12 @@ __powerline() {
         fi
         [[ -n "$ref" ]] || return   # not a git repo
 
+        # Escape command substitutions and backticks to prevent code execution
+        # via malicious git branch/tag names
+        ref=${ref//\\/\\\\}
+        ref=${ref//\$/\\$}
+        ref=${ref//\`/\\\`}
+
         printf "%s" "$ref"
     }
 
