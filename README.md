@@ -21,7 +21,7 @@ A powerline-style prompt for Bash with coloured segments, git integration, and t
 - A [patched/powerline font](https://github.com/powerline/fonts) for the slanted `\uE0B0` separator
   (e.g. *Fira Mono for Powerline* or *Meslo LG M for Powerline*)
   installed fonts live at `~/.local/share/fonts`; select one in your terminal emulator
-- Use `POWERLINE_MODE=compatible` if you cannot install a patched font (uses `▶` instead)
+- Use `POWERLINE_MODE=compatible` if you cannot install a patched font (uses `❯` instead)
 
 ## Installation
 
@@ -84,7 +84,7 @@ The file is plain Bash. Any `PL_*` variable set there overrides the active prese
 | Variable | Description | Default |
 |---|---|---|
 | `POWERLINE_MODE` | Separator style: `patched`, `compatible`, `flat` | `patched` |
-| `POWERLINE_SEP` | Override the compatible-mode separator | `▶` |
+| `POWERLINE_SEP` | Override the compatible-mode separator | `❯` |
 | `POWERLINE_THEME` | Colour preset name | `default` |
 | `POWERLINE_SHOW_USER` | Show the username segment | _(unset)_ |
 | `POWERLINE_SHOW_HOST` | Show the hostname segment | _(unset)_ |
