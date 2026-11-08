@@ -253,8 +253,7 @@ __powerline
 unset __powerline
 
 # Absolute path of this file, so powerline_theme can re-source it.
-POWERLINE_SELF=${BASH_SOURCE[0]}
-POWERLINE_SELF=${POWERLINE_SELF/#\~/$HOME}
+POWERLINE_SELF=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")
 
 # Switch the color preset in the current shell and re-render PS1 right away.
 # Usage: powerline_theme <name>
