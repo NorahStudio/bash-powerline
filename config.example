@@ -28,23 +28,23 @@
 # Commented values match the "default" preset.
 
 # username segment
-PL_USER_FG=0
-PL_USER_BG=153
+#PL_USER_FG=0
+#PL_USER_BG=153
 
 # hostname segment
-PL_HOST_FG=0
-PL_HOST_BG=4
+#PL_HOST_FG=0
+#PL_HOST_BG=4
 
 # working directory (and the prompt tail strip)
-PL_CWD_FG=15
-PL_CWD_BG=237
+#PL_CWD_FG=15
+#PL_CWD_BG=237
 
 # git segment: clean vs dirty
-PL_GIT_FG=0
-PL_GIT_BG=148
-PL_GITD_FG=0
-PL_GITD_BG=210
+#PL_GIT_FG=0
+#PL_GITD_FG=0
+#PL_GIT_BG=148
+#PL_GITD_BG=210
 
 # prompt symbol, drawn on the grey tail after the last segment
-PL_OK_FG=10    # last command succeeded
-PL_ERR_FG=9    # last command failed
+#PL_OK_FG=10    # last command succeeded
+#PL_ERR_FG=9    # last command failed
