@@ -88,7 +88,11 @@ __powerline() {
 
     # Reset colour variables so values don't leak between theme/config switches.
     unset PL_USER_FG PL_USER_BG PL_HOST_FG PL_HOST_BG PL_CWD_FG PL_CWD_BG \
-          PL_GIT_FG PL_GIT_BG PL_GITD_FG PL_GITD_BG PL_OK_FG PL_ERR_FG
+          PL_GIT_FG PL_GIT_BG PL_GITD_FG PL_GITD_BG \
+          PL_GIT_STAGED_FG PL_GIT_STAGED_BG PL_GIT_CHANGED_FG PL_GIT_CHANGED_BG \
+          PL_GIT_UNTRACKED_FG PL_GIT_UNTRACKED_BG \
+          PL_GIT_CONFLICTED_FG PL_GIT_CONFLICTED_BG \
+          PL_OK_FG PL_ERR_FG
 
     case "$POWERLINE_THEME" in
         solarized)
@@ -98,6 +102,11 @@ __powerline() {
             PL_CWD_FG=15  PL_CWD_BG=240    # subtle grey
             PL_GIT_FG=15  PL_GIT_BG=64     # solarized green
             PL_GITD_FG=15 PL_GITD_BG=166   # solarized orange
+            # git status indicators, solarized palette
+            PL_GIT_STAGED_FG=15    PL_GIT_STAGED_BG=64    # ✔ white on green
+            PL_GIT_CHANGED_FG=15   PL_GIT_CHANGED_BG=136  # ✎ white on yellow
+            PL_GIT_UNTRACKED_FG=15 PL_GIT_UNTRACKED_BG=124 # ? white on red
+            PL_GIT_CONFLICTED_FG=15 PL_GIT_CONFLICTED_BG=160 # ✼ white on red
             PL_OK_FG=71                    # muted green
             PL_ERR_FG=167                  # soft red/orange
             ;;
@@ -106,18 +115,29 @@ __powerline() {
             PL_USER_FG=15 PL_USER_BG=24    # dark blue
             PL_HOST_FG=15 PL_HOST_BG=239   # warm grey
             PL_CWD_FG=15  PL_CWD_BG=237    # dark grey
-            PL_GIT_FG=15  PL_GIT_BG=28     # green
-            PL_GITD_FG=15 PL_GITD_BG=1     # red
+            PL_GIT_FG=0   PL_GIT_BG=2      # black on green
+            PL_GITD_FG=15 PL_GITD_BG=1     # white on red
+            # git status indicators, powerline-shell colours
+            PL_GIT_STAGED_FG=15    PL_GIT_STAGED_BG=22    # ✔ white on green
+            PL_GIT_CHANGED_FG=15   PL_GIT_CHANGED_BG=130  # ✎ white on brown
+            PL_GIT_UNTRACKED_FG=15 PL_GIT_UNTRACKED_BG=52 # ? white on dark brown
+            PL_GIT_CONFLICTED_FG=15 PL_GIT_CONFLICTED_BG=9 # ✼ white on bright red
             PL_OK_FG=46                    # bright green
             PL_ERR_FG=196                  # vivid red
             ;;
         default|*)
-            # default: light-blue user, dark cwd strip, green clean / red 210
+            # default: light-blue user, dark cwd strip, black on green
+            # clean / white on red dirty
             PL_USER_FG=0  PL_USER_BG=153   # light blue
             PL_HOST_FG=0  PL_HOST_BG=4     # dark blue
             PL_CWD_FG=15  PL_CWD_BG=237    # white on dark grey
-            PL_GIT_FG=0   PL_GIT_BG=148    # green
-            PL_GITD_FG=0  PL_GITD_BG=210   # salmon-red
+            PL_GIT_FG=0   PL_GIT_BG=2      # black on green
+            PL_GITD_FG=15 PL_GITD_BG=1     # white on red
+            # git status indicators, powerline-shell colours
+            PL_GIT_STAGED_FG=15    PL_GIT_STAGED_BG=22    # ✔ white on green
+            PL_GIT_CHANGED_FG=15   PL_GIT_CHANGED_BG=130  # ✎ white on brown
+            PL_GIT_UNTRACKED_FG=15 PL_GIT_UNTRACKED_BG=52 # ? white on dark brown
+            PL_GIT_CONFLICTED_FG=15 PL_GIT_CONFLICTED_BG=9 # ✼ white on bright red
             PL_OK_FG=10                    # bright green
             PL_ERR_FG=9                    # bright red
             ;;
@@ -166,10 +186,54 @@ __powerline() {
         printf "%s" "$ref"
     }
 
+    # Parse "git status --porcelain --branch" once, setting the overall
+    # PL_GIT_DIRTY flag plus the per-state file counters shown by
+    # __git_file_indicators. All globals: ps1 reads them after this returns.
+    #
+    # Porcelain v1 lines are "XY path": X is the index (staged) state, Y the
+    # work-tree (unstaged) state -- " M f" is modified but not staged, "M  f"
+    # is staged, "??" untracked, and DD|AU|UD|UA|DU|AA|UU unmerged (conflict).
+    # `IFS=` stops read from stripping that leading space, which made
+    # unstaged changes register as staged.
     __git_dirty() {
         local git_eng="env LANG=C git"
-        [[ $($git_eng status --porcelain --branch 2>/dev/null | wc -l) -gt 1 ]] \
-            && printf 1 || printf 0
+
+        PL_GIT_DIRTY=0
+        PL_GIT_STAGED=0
+        PL_GIT_CHANGED=0
+        PL_GIT_UNTRACKED=0
+        PL_GIT_CONFLICTED=0
+
+        local status=$($git_eng status --porcelain --branch 2>/dev/null)
+        local line
+
+        while IFS= read -r line; do
+            # Skip the "## branch..." header (and any empty line).
+            [[ -z "$line" || $line == '##'* ]] && continue
+
+            PL_GIT_DIRTY=1
+
+            # Unmerged files count only as conflicts, untracked files only
+            # as untracked; `continue` keeps their codes out of the staged
+            # and unstaged cases below.
+            case "${line:0:2}" in
+                DD|AU|UD|UA|DU|AA|UU)
+                    PL_GIT_CONFLICTED=$((PL_GIT_CONFLICTED + 1))
+                    continue
+                    ;;
+                '??')
+                    PL_GIT_UNTRACKED=$((PL_GIT_UNTRACKED + 1))
+                    continue
+                    ;;
+            esac
+
+            case "${line:0:1}" in                 # X: staged
+                M|A|D|R|C|T) PL_GIT_STAGED=$((PL_GIT_STAGED + 1)) ;;
+            esac
+            case "${line:1:1}" in                 # Y: unstaged
+                M|D|T)     PL_GIT_CHANGED=$((PL_GIT_CHANGED + 1)) ;;
+            esac
+        done <<< "$status"
     }
 
     # __segment <fg> <bg> <text>
@@ -186,6 +250,42 @@ __powerline() {
         PL_PREV_BG=$bg
     }
 
+    # __git_status_segment <fg> <bg> <symbol> <count>
+    # Appends one git status segment: " <symbol>[ <count>] " with the count
+    # shown only when more than one file is in that state, as powerline-shell
+    # does (RepoStats.n_or_empty).
+    __git_status_segment() {
+        local fg=$1 bg=$2 sym=$3 n=$4
+        # Separate `local`: on one line, $sym would expand before sym=$3 runs.
+        local text=" $sym"
+        (( n > 1 )) && text+=" $n"
+        __segment "$fg" "$bg" "$text "
+    }
+
+    # One segment per git file status, appended after the branch segment when
+    # the repo is dirty, powerline-shell style: ✔ staged (green), ✎ changed
+    # (brown), ? untracked (dark brown), ✼ conflicted (red). Each is its own
+    # segment, so the powerline separator is drawn between them and each
+    # carries its theme's colour.
+    __git_file_indicators() {
+        if (( PL_GIT_STAGED > 0 )); then
+            __git_status_segment \
+                $PL_GIT_STAGED_FG $PL_GIT_STAGED_BG '✔' $PL_GIT_STAGED
+        fi
+        if (( PL_GIT_CHANGED > 0 )); then
+            __git_status_segment \
+                $PL_GIT_CHANGED_FG $PL_GIT_CHANGED_BG '✎' $PL_GIT_CHANGED
+        fi
+        if (( PL_GIT_UNTRACKED > 0 )); then
+            __git_status_segment \
+                $PL_GIT_UNTRACKED_FG $PL_GIT_UNTRACKED_BG '?' $PL_GIT_UNTRACKED
+        fi
+        if (( PL_GIT_CONFLICTED > 0 )); then
+            __git_status_segment \
+                $PL_GIT_CONFLICTED_FG $PL_GIT_CONFLICTED_BG '✼' $PL_GIT_CONFLICTED
+        fi
+    }
+
     ps1() {
         local prev_err=$?
         PL_OUT=''
@@ -200,8 +300,10 @@ __powerline() {
 
         __segment $PL_CWD_FG $PL_CWD_BG ' \w '
 
-        # Git segment (if any): branch ref only; the background color shows
-        # whether it's clean (green) or dirty (red).
+        # Git segment: branch ref whose background shows clean (green) or
+        # dirty (red), followed by one powerline-shell style indicator
+        # segment per file status (✔ staged, ✎ changed, ? untracked,
+        # ✼ conflicted) when the repo is dirty.
         local git_info
         if shopt -q promptvars; then
             __powerline_git_info="$(__git_info)"
@@ -210,8 +312,10 @@ __powerline() {
             git_info=$(__git_info)
         fi
         if [[ -n "$git_info" ]]; then
-            if [[ $(__git_dirty) == 1 ]]; then
+            __git_dirty    # sets PL_GIT_DIRTY and the file counters
+            if [[ $PL_GIT_DIRTY == 1 ]]; then
                 __segment $PL_GITD_FG $PL_GITD_BG "$git_info"
+                __git_file_indicators
             else
                 __segment $PL_GIT_FG $PL_GIT_BG "$git_info"
             fi

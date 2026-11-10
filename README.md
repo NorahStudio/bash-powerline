@@ -103,8 +103,17 @@ Set in the config file (xterm-256 colour codes, `0`-`255`):
 | `PL_CWD_FG`, `PL_CWD_BG` | Working directory + prompt tail |
 | `PL_GIT_FG`, `PL_GIT_BG` | Git, clean |
 | `PL_GITD_FG`, `PL_GITD_BG` | Git, dirty |
+| `PL_GIT_STAGED_FG`, `PL_GIT_STAGED_BG` | Git indicator: staged (✔) |
+| `PL_GIT_CHANGED_FG`, `PL_GIT_CHANGED_BG` | Git indicator: changed (✎) |
+| `PL_GIT_UNTRACKED_FG`, `PL_GIT_UNTRACKED_BG` | Git indicator: untracked (?) |
+| `PL_GIT_CONFLICTED_FG`, `PL_GIT_CONFLICTED_BG` | Git indicator: conflicted (✼) |
 | `PL_OK_FG` | Prompt symbol, last command succeeded |
 | `PL_ERR_FG` | Prompt symbol, last command failed |
+
+When the repository is dirty, the branch segment is followed by one
+segment per file status, powerline-shell style: ✔ staged (green), ✎
+changed (brown), ? untracked (dark brown), ✼ conflicted (red). Each shows
+its count when more than one file is in that state.
 
 ## Custom presets
 

@@ -45,6 +45,16 @@
 #PL_GIT_BG=148
 #PL_GITD_BG=210
 
+# git status indicators, shown when the repo is dirty (powerline-shell colours)
+#PL_GIT_STAGED_FG=15     # ✔ staged
+#PL_GIT_STAGED_BG=22     # green
+#PL_GIT_CHANGED_FG=15    # ✎ changed
+#PL_GIT_CHANGED_BG=130   # brown
+#PL_GIT_UNTRACKED_FG=15  # ? untracked
+#PL_GIT_UNTRACKED_BG=52  # dark brown
+#PL_GIT_CONFLICTED_FG=15 # ✼ conflicted
+#PL_GIT_CONFLICTED_BG=9  # bright red
+
 # prompt symbol, drawn on the grey tail after the last segment
 #PL_OK_FG=10    # last command succeeded
 #PL_ERR_FG=9    # last command failed
