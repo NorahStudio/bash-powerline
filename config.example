@@ -39,11 +39,11 @@
 #PL_CWD_FG=15
 #PL_CWD_BG=237
 
-# git segment: clean vs dirty
+# git segment: clean vs dirty (powerline-shell colours)
 #PL_GIT_FG=0
-#PL_GITD_FG=0
+#PL_GITD_FG=15
 #PL_GIT_BG=148
-#PL_GITD_BG=210
+#PL_GITD_BG=1
 
 # git status indicators, shown when the repo is dirty (powerline-shell colours)
 #PL_GIT_STAGED_FG=15     # ✔ staged
