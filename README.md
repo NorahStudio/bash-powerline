@@ -145,6 +145,16 @@ and exit non-zero on failure:
 ./test_git_segments.sh  # git branch and ✔ ✎ ? ✼ status segments
 ```
 
+`storybook.sh` renders sample prompts for every combination of theme and
+git state, plus layout, separator mode, segment toggles and exit status —
+a visual reference and a debugging aid:
+
+```bash
+./storybook.sh                 # all themes
+./storybook.sh default night   # only the named themes
+./storybook.sh --raw           # print PS1 escape codes instead of rendering
+```
+
 ## License
 
 MIT
