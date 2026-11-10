@@ -116,7 +116,7 @@ __powerline() {
             PL_HOST_FG=15 PL_HOST_BG=239   # warm grey
             PL_CWD_FG=15  PL_CWD_BG=237    # dark grey
             PL_GIT_FG=0   PL_GIT_BG=148    # black on light green (powerline-shell)
-            PL_GITD_FG=15 PL_GITD_BG=1     # white on red
+            PL_GITD_FG=15 PL_GITD_BG=161   # white on pink-red (powerline-shell)
             # git status indicators, powerline-shell colours
             PL_GIT_STAGED_FG=15    PL_GIT_STAGED_BG=22    # ✔ white on green
             PL_GIT_CHANGED_FG=15   PL_GIT_CHANGED_BG=130  # ✎ white on brown
@@ -127,12 +127,12 @@ __powerline() {
             ;;
         default|*)
             # default: light-blue user, dark cwd strip, black on light
-            # green clean / white on red dirty (powerline-shell colours)
+            # green clean / white on pink-red dirty (powerline-shell colours)
             PL_USER_FG=0  PL_USER_BG=153   # light blue
             PL_HOST_FG=0  PL_HOST_BG=4     # dark blue
             PL_CWD_FG=15  PL_CWD_BG=237    # white on dark grey
             PL_GIT_FG=0   PL_GIT_BG=148    # black on light green (powerline-shell)
-            PL_GITD_FG=15 PL_GITD_BG=1     # white on red
+            PL_GITD_FG=15 PL_GITD_BG=161   # white on pink-red (powerline-shell)
             # git status indicators, powerline-shell colours
             PL_GIT_STAGED_FG=15    PL_GIT_STAGED_BG=22    # ✔ white on green
             PL_GIT_CHANGED_FG=15   PL_GIT_CHANGED_BG=130  # ✎ white on brown

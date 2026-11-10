@@ -43,7 +43,7 @@
 #PL_GIT_FG=0
 #PL_GITD_FG=15
 #PL_GIT_BG=148
-#PL_GITD_BG=1
+#PL_GITD_BG=161
 
 # git status indicators, shown when the repo is dirty (powerline-shell colours)
 #PL_GIT_STAGED_FG=15     # ✔ staged
