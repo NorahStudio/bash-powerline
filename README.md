@@ -5,7 +5,8 @@ A powerline-style prompt for Bash with coloured segments, git integration, and t
 ## Features
 
 - Segmented prompt with coloured backgrounds and slanted separators
-- Git integration: branch name, clean/dirty shown by segment colour
+- Git integration: branch name, clean/dirty shown by segment colour, plus
+  powerline-shell style status segments (✔ ✎ ? ✼) with file counts
 - Prompt symbol colour indicates last command success/failure
 - Grey tail strip (matching the cwd segment) for a polished look
 - Two-line prompt: segments on the first line, prompt symbol on the second
@@ -48,7 +49,7 @@ Edit the file to taste. Values in the config override the active preset.
 
 | Preset       | Description                           |
 |-------------|--------------------------------------|
-| `default`   | Light-blue user, dark grey cwd, green clean / salmon-red dirty |
+| `default`   | Light-blue user, dark grey cwd, powerline-shell git colours (light-green clean / pink-red dirty) |
 | `solarized` | Solarized dark palette                |
 | `night`     | Cool blue-grey night scheme           |
 
@@ -132,6 +133,17 @@ PL_ERR_FG=196
 ```
 
 2. Switch to it at runtime: `powerline_theme mytheme`
+
+## Testing
+
+Two test scripts live next to the prompt script. Both are hermetic — they
+build throwaway git repositories under `./.tmp/` and remove them afterwards —
+and exit non-zero on failure:
+
+```bash
+./test_fixes.sh         # security & bug fixes: injection, config, toggles
+./test_git_segments.sh  # git branch and ✔ ✎ ? ✼ status segments
+```
 
 ## License
 
